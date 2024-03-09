@@ -44,9 +44,9 @@ public class AppConfig {
                 cfg.setAllowedOrigins(Arrays.asList(
                         "http://localhost:3000/","https://kanchan-11.github.io/Social-Media-React"
                 ));
-                cfg.setAllowedMethods(Collections.singletonList("*"));
+                cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 cfg.setAllowCredentials(true);
-                cfg.setAllowedHeaders(Collections.singletonList("*"));
+                cfg.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
                 cfg.setExposedHeaders(Arrays.asList("Authorization"));
                 cfg.setMaxAge(3600L);
                 return cfg;
