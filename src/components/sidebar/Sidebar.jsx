@@ -1,97 +1,138 @@
 import React from 'react'
 import { SidebarNavigationMenu } from './SidebarNavigationMenu'
-import { Avatar, Divider, Menu, MenuItem,Button, Card } from '@mui/material'
+import { Avatar, Divider, Menu, MenuItem, Button, Card, Box, Typography } from '@mui/material'
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Store from '../../redux/Store';
 import { useDispatch, useSelector } from 'react-redux';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { logoutUserAction } from '../../redux/Auth/auth.action';
 
-const Sidebar = () => {
-  const dispatch=useDispatch()
-  const {auth} = useSelector(Store=>Store)
-  const navigate=useNavigate()
+import { ColorModeContext } from '../../theme/ThemeContext';
+import { useContext } from 'react';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+
+const Sidebar = ({ handleClose }) => {
+  const dispatch = useDispatch()
+  const { auth } = useSelector(Store => Store)
+  const navigate = useNavigate()
+  const { toggleColorMode, mode } = useContext(ColorModeContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = () => {
+  const handleMenuClose = () => {
     setAnchorEl(null);
   };
-  const handleLogout=()=>{
+  const handleLogout = () => {
     dispatch(logoutUserAction())
-    handleClose()
+    handleMenuClose()
   }
-  const handleProfile=()=>{
-    handleClose()
-    const userId = auth.user?.id ?? 'fallback-id'; // Provide a fallback if user is not available
-      navigate(`/profile/${userId}`)
+  const handleProfile = () => {
+    handleMenuClose()
+    if (handleClose) handleClose();
+    const userId = auth.user?.id ?? 'fallback-id';
+    navigate(`/profile/${userId}`)
   }
-  const handleNavigate = (item) =>{
-    if(item.title=="Profile")
-    {
-      const userId = auth.user?.id ?? 'fallback-id'; // Provide a fallback if user is not available
+  const handleNavigate = (item) => {
+    if (handleClose) handleClose();
+    if (item.title === "Profile") {
+      const userId = auth.user?.id ?? 'fallback-id';
       navigate(`/profile/${userId}`)
     }
-    else
-    {
+    else {
       navigate(item.path)
     }
   }
-  
-  const profilePicUrl = auth.user?.profilePicture?
-                          auth.user.profilePicture
-                          :"https:cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_960_720.png"
+
+  const profilePicUrl = auth.user?.profilePicture ?
+    auth.user.profilePicture
+    : "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_960_720.png"
   return (
-    <Card className='card h-screen flex flex-col justify-between py-5'>
-      <div className='space-y-8 pl-5'>
-        <div className=''>
-          <span className='logo font-bold text-xl'>Social Media</span>
-        </div>
-        <div className='space-y-8'>
+    <Card sx={{
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      py: 5,
+      borderRadius: 0,
+      backgroundColor: mode === 'light' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(26, 29, 45, 0.5)',
+      backdropFilter: 'blur(10px)',
+      borderRight: mode === 'light' ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.05)',
+      boxShadow: 'none'
+    }}>
+      <Box sx={{
+        pl: 3,
+        pr: 3,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 4,
+        flex: 1,
+        overflowY: 'auto',
+        minHeight: 0,
+        '&::-webkit-scrollbar': { display: 'none' },
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none'
+      }}>
+        <Box>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', background: 'linear-gradient(45deg, #2196f3, #e91e63)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent' }}>
+            Social Media
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {SidebarNavigationMenu.map((item) =>
-            <div onClick={()=>handleNavigate(item)} className='cursor-pointer flex space-x-3 item-center'>
+            <Box onClick={() => handleNavigate(item)} sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2, '&:hover': { color: 'primary.main' } }}>
               {item.icon}
-              <p className='text-xl'>{item.title}</p>
-            </div>
+              <Typography variant="h6" sx={{ fontSize: '1.2rem', color: mode === 'light' ? 'text.secondary' : 'inherit' }}>{item.title}</Typography>
+            </Box>
           )}
-        </div>
-      </div>
-      <div>
-        <Divider />
-        <div className='pl-5 flex items-center justify-between pt-5'>
-          <div className='flex items-center space-x-3'>
+        </Box>
+      </Box>
+      <Box>
+        <Box sx={{ pl: 3, pr: 3, pb: 2 }}>
+          <Box onClick={toggleColorMode} sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2, '&:hover': { color: 'primary.main' } }}>
+            {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon sx={{ color: mode === 'light' ? 'text.secondary' : 'inherit' }} />}
+            <Typography variant="h6" sx={{ fontSize: '1.2rem', color: mode === 'light' ? 'text.secondary' : 'inherit' }}>
+              {mode === 'dark' ? "Light Theme" : "Dark Theme"}
+            </Typography>
+          </Box>
+        </Box>
+        <Divider sx={{ borderColor: mode === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)' }} />
+        <Box sx={{ pl: 3, pr: 2, pt: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Avatar src={profilePicUrl} />
-            <div>
-              <p className='font-bold'>{auth.user?.firstName+" "+auth.user?.lastName}</p>
-              <p className='opacity-70'>@{auth.user?.firstName.toLowerCase()+"_"+auth.user?.lastName.toLowerCase()}</p>
-            </div>
-          </div>
+            <Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: mode === 'light' ? 'text.primary' : 'inherit' }}>{auth.user?.firstName + " " + auth.user?.lastName}</Typography>
+              <Typography variant="body2" sx={{ opacity: 0.7, color: mode === 'light' ? 'text.secondary' : 'inherit' }}>@{auth.user?.firstName?.toLowerCase() + "_" + auth.user?.lastName?.toLowerCase()}</Typography>
+            </Box>
+          </Box>
           <Button
             id="basic-button"
             aria-controls={open ? 'basic-menu' : undefined}
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
             onClick={handleClick}
+            sx={{ minWidth: 0, color: mode === 'light' ? 'text.primary' : 'inherit' }}
           >
-            <MoreVertIcon/>
+            <MoreVertIcon />
           </Button>
           <Menu
             id="basic-menu"
             anchorEl={anchorEl}
             open={open}
-            onClose={handleClose}
+            onClose={handleMenuClose}
             MenuListProps={{
               'aria-labelledby': 'basic-button',
             }}
           >
             <MenuItem onClick={handleProfile}>Profile</MenuItem>
-            <MenuItem onClick={handleClose}>My account</MenuItem>
+            <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
-        </div>
-      </div>
+        </Box>
+      </Box>
     </Card>
   )
 }

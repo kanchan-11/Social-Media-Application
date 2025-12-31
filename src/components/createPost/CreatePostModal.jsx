@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import ImageIcon from '@mui/icons-material/Image';
 import VideocamIcon from '@mui/icons-material/Videocam';
+import AddIcon from '@mui/icons-material/Add';
 import { uploadToCloudinary } from '../../utils/UploadToCloud';
 import { createPostAction } from '../../redux/Post/post.action';
 
@@ -12,34 +13,37 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 500,
+  width: 550,
   bgcolor: 'background.paper',
   boxShadow: 24,
   p: 4,
-  borderRadius: ".6rem",
-  outline: "none"
+  borderRadius: "16px", // Softer corners
+  outline: "none",
+  border: '1px solid',
+  borderColor: 'divider',
 };
+
 const CreatePostModal = ({ open, handleClose }) => {
 
   const { auth } = useSelector(Store => Store)
   const [selectedImage, setSelectedImage] = useState()
   const [selectedVideo, setSelectedVideo] = useState()
   const [isLoading, setIsLoading] = useState(false)
-  const dispatch=useDispatch()
+  const dispatch = useDispatch()
 
-  const handleSelectImage = async(event) => {
-      setIsLoading(true)
-      const  imageUrl = await uploadToCloudinary(event.target.files[0],"image")
-      setSelectedImage(imageUrl)
-      setIsLoading(false)
-      formik.setFieldValue("image",imageUrl)
-  }
-  const handleSelectVideo = async(event) => {
+  const handleSelectImage = async (event) => {
     setIsLoading(true)
-    const  videoUrl = await uploadToCloudinary(event.target.files[0],"video")
+    const imageUrl = await uploadToCloudinary(event.target.files[0], "image")
+    setSelectedImage(imageUrl)
+    setIsLoading(false)
+    formik.setFieldValue("image", imageUrl)
+  }
+  const handleSelectVideo = async (event) => {
+    setIsLoading(true)
+    const videoUrl = await uploadToCloudinary(event.target.files[0], "video")
     setSelectedVideo(videoUrl)
     setIsLoading(false)
-    formik.setFieldValue("video",videoUrl)
+    formik.setFieldValue("video", videoUrl)
   }
   const formik = useFormik({
     initialValues: {
@@ -59,74 +63,97 @@ const CreatePostModal = ({ open, handleClose }) => {
       onClose={handleClose}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
+      closeAfterTransition
+      BackdropComponent={Backdrop}
+      BackdropProps={{
+        timeout: 500,
+        sx: { backdropFilter: 'blur(5px)' } // Blur effect behind modal
+      }}
     >
       <Box sx={style}>
         <form onSubmit={formik.handleSubmit}>
-          <div>
-            <div className='flex space-x-4 items-center'>
-              <Avatar />
-              <div>
-                <p className='font-bold text-lg'>{auth.user?.firstName + " " + auth.user?.lastName}</p>
-                <p className='text-sm'>@{auth.user?.firstName.toLowerCase() + "_" + auth.user?.lastName.toLowerCase()}</p>
-              </div>
-            </div>
-            <textarea name="caption"
-              id=""
-              className='outline-none w-full mt-5 p-2 bg-transparent border border-[#3b4054] rounded-sm'
-              placeholder='write caption'
-              rows={4}
-              value={formik.values.caption}
-              onChange={formik.handleChange}>
-            </textarea>
-            <div className='flex items-center spaxe-x-5 mt-5'>
-              <div>
-                <input
-                  type="file"
-                  accept='image/*'
-                  onChange={handleSelectImage}
-                  style={{ display: "none" }}
-                  id="image-input"
-                />
+          <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6" fontWeight="bold">Create New Post</Typography>
+            <IconButton onClick={handleClose} size="small"><AddIcon sx={{ transform: 'rotate(45deg)' }} /></IconButton>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+            <Avatar src={auth.user?.profilePicture} />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold">{auth.user?.firstName + " " + auth.user?.lastName}</Typography>
+              <Typography variant="caption" color="text.secondary">@{auth.user?.firstName.toLowerCase() + "_" + auth.user?.lastName.toLowerCase()}</Typography>
+            </Box>
+          </Box>
+
+          <textarea
+            name="caption"
+            placeholder="What's on your mind?"
+            style={{
+              width: '100%',
+              border: 'none',
+              outline: 'none',
+              backgroundColor: 'transparent',
+              resize: 'none',
+              fontSize: '1.2rem',
+              color: 'inherit',
+              marginBottom: '1rem',
+              fontFamily: 'inherit'
+            }}
+            rows={4}
+            value={formik.values.caption}
+            onChange={formik.handleChange}
+          />
+
+          <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+            {/* Media Selection Area */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'primary.main' }}>
+              <Box>
+                <input type="file" accept='image/*' onChange={handleSelectImage} style={{ display: "none" }} id="image-input" />
                 <label htmlFor='image-input'>
-                  <IconButton color="primary"  component="span">
+                  <IconButton color="primary" component="span">
                     <ImageIcon />
                   </IconButton>
                 </label>
-                <span>Image</span>
-              </div>
-              <div>
-                <input
-                  type="file"
-                  accept='video/*'
-                  onChange={handleSelectVideo}
-                  style={{ display: "none" }}
-                  id="video-input"
-                />
+              </Box>
+              <Box>
+                <input type="file" accept='video/*' onChange={handleSelectVideo} style={{ display: "none" }} id="video-input" />
                 <label htmlFor='video-input'>
                   <IconButton color="primary" component="span">
                     <VideocamIcon />
                   </IconButton>
                 </label>
-                <span>Video</span>
-              </div>
-            </div>
-            {selectedImage && <div>
-              <img className='h-[10rem]' src={selectedImage} alt="" />
-            </div>}
-            {selectedVideo && <div>
-              <img className='h-[10rem]' src={selectedVideo} alt="" />
-            </div>}
-            <div className='flex w-full justify-end'>
-              <Button className="space-x-10"sx={{ borderRadius: "1.5rem" }} type="submit" variant="contained" onClick={handleClose}>Discard</Button>
-              <Button sx={{ borderRadius: "1.5rem" }} type="submit" variant="contained">Post</Button>
+              </Box>
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ alignSelf: 'center' }}>Add to your post</Typography>
+          </Box>
 
-            </div>
-          </div>
+          {selectedImage && <Box sx={{ mb: 2, borderRadius: 2, overflow: 'hidden', maxHeight: 300 }}>
+            <img src={selectedImage} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          </Box>}
+          {selectedVideo && <Box sx={{ mb: 2, borderRadius: 2, overflow: 'hidden', maxHeight: 300 }}>
+            <video src={selectedVideo} controls style={{ width: '100%', height: '100%' }} />
+          </Box>}
+
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 3 }}>
+            <Button
+              variant="outlined"
+              onClick={handleClose}
+              sx={{ borderRadius: "20px", textTransform: "none" }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ borderRadius: "20px", px: 4, textTransform: "none" }}
+              disabled={!formik.values.caption && !selectedImage && !selectedVideo}
+            >
+              Post
+            </Button>
+          </Box>
         </form>
         <Backdrop
           sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
           open={isLoading}
-          onClick={handleClose}
         >
           <CircularProgress color="inherit" />
         </Backdrop>

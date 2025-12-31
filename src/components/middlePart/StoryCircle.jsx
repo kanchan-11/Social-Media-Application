@@ -1,17 +1,17 @@
-import { Avatar } from '@mui/material'
+import { Avatar, Typography } from '@mui/material'
 import React from 'react'
 
 const StoryCircle = () => {
   return (
-    <div className="flex flex-col items-center mr-4 cursor-pointer">
-        <Avatar 
-          sx={{width:"5rem",height:"5rem"}}
-          src="https://cdn.pixabay.com/photo/2018/01/21/14/16/woman-3096664_640.jpg" 
-        >
-          
-        </Avatar>    
-        <p>User Name</p>
-        </div>  
+    <div className="flex flex-col items-center mr-4 cursor-pointer min-w-[5rem] flex-shrink-0">
+      <Avatar
+        sx={{ width: "5rem", height: "5rem" }}
+        src="https://www.kindpng.com/picc/m/24-248325_profile-picture-circle-png-transparent-png.png"
+      >
+
+      </Avatar>
+      <Typography variant="body2" sx={{ fontSize: '0.8rem', mt: 0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '5rem' }}>User Name</Typography>
+    </div>
   )
 }
 
